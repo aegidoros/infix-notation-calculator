@@ -1,11 +1,10 @@
 package com.aer.sample.polishreversenotation;
 
 import java.util.*;
-import java.util.function.BiFunction;
 
 public class InfixToPrnConverter {
 
-  private static Map<String, Integer> precedence;
+  private static final Map<String, Integer> precedence;
 
   static {
     precedence = new HashMap<>();
@@ -66,10 +65,6 @@ public class InfixToPrnConverter {
     } catch (NumberFormatException exception) {
       return false;
     }
-  }
-
-  private static boolean checkIfNumberIsBiggerThanNine(String symbol1, String symbol2, BiFunction<String, String, Boolean> checkNumber) {
-    return checkNumber.apply(symbol1, symbol2);
   }
 
   private static boolean isOperand(String symbol) {
