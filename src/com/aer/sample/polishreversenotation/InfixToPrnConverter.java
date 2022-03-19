@@ -3,6 +3,9 @@ package com.aer.sample.polishreversenotation;
 import java.util.*;
 
 public class InfixToPrnConverter {
+  private InfixToPrnConverter() {
+    throw new IllegalStateException("Utility class");
+  }
 
   private static final Map<String, Integer> precedence;
 
@@ -20,18 +23,24 @@ public class InfixToPrnConverter {
 
     String trimmedToken = removeWhiteSpace(token);
     Queue<String> result = new ArrayDeque<>();
-    Stack<String> operands = new Stack();
+    Stack<String> operands = new Stack<>();
+    boolean isNumber = false;
     for (int i = 0; i < trimmedToken.length(); i++) {
       String symbol = getString(trimmedToken, i);
       switch (symbol) {
-        case "+": case "-": case "/": case "*":
+        case "+":
+        case "-":
+        case "/":
+        case "*":
           while (!operands.isEmpty() && precedence.get(operands.peek()) >= precedence.get(symbol)) {
             result.add(operands.pop());
           }
           operands.push(symbol);
+          isNumber=false;
           break;
         case "(":
           operands.push(symbol);
+          isNumber=false;
           break;
         case ")":
           String operand = operands.pop();
@@ -39,35 +48,24 @@ public class InfixToPrnConverter {
             result.add(operand);
             operand = operands.pop();
           }
+          isNumber=false;
           break;
         default:
-          String number = symbol;
-          while (i + 1 < trimmedToken.length() && checkNumber(symbol, getString(trimmedToken, i + 1))) {
-            number += getString(trimmedToken, i + 1);
-            i++;
+          if(isNumber){
+            symbol+=result.remove();
           }
-          result.add(number);
+          result.add(symbol);
+          isNumber=true;
       }
     }
     addRemainingOperands(result, operands);
     return result.toString().replaceAll("[\\[\\]\\s]", "");
   }
 
-
-
   private static String getString(String expression, int index) {
     return String.valueOf(expression.charAt(index));
   }
 
-  private static boolean checkNumber(String operator1, String operator2) {
-    try {
-      String operator = operator1 + operator2;
-      Double.parseDouble(operator);
-      return true;
-    } catch (NumberFormatException exception) {
-      return false;
-    }
-  }
 
   private static String removeWhiteSpace(String token) {
     return token.replaceAll("\\s", "");
