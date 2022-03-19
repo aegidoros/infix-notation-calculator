@@ -1,4 +1,4 @@
-package com.aer.sample.polishreversenotation;
+package com.aer.sample.infixnotationcalculator;
 
 import java.util.Arrays;
 
