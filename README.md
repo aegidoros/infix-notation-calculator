@@ -7,7 +7,7 @@ a+b
 a/2+c*d-e*(f*g)  
 a*(b+c)/d  
 
-###Reverse Polish Notation (RPN)
+### Reverse Polish Notation (RPN)
 
 Reverse Polish Notation provides the quickest way to enter data in a calculator because it eliminates the need for parenthesis. It was made mainstream by HP when they implemented it in their famous programmable calculators. It is also very simple to code into a computer program.
 Examples below of the previous infix expressions:
@@ -16,7 +16,7 @@ ab+
 abc/de+*+f-  
 ab+cd-*
 
-###Infix notation to Postfix Notation Algorithm:
+### Infix notation to Postfix Notation Algorithm:
 
 Initialize result as a blank string, Iterate through given expression, one character at a time
 
@@ -33,7 +33,7 @@ Initialize result as a blank string, Iterate through given expression, one chara
 
 Once the expression iteration is completed and the operator stack is not empty, “pop out an operator from the stack and add it to the result” until the operator stack is empty.  The result will be our answer, postfix expression.
 
-###Algorithm to evaluate the postfix expression
+### Algorithm to evaluate the postfix expression
 
 1. Scan the expression from left to right.
 2. If we encounter any operand in the expression, then we push the operand in the stack.
