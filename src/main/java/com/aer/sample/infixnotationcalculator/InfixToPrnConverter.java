@@ -22,9 +22,9 @@ public class InfixToPrnConverter {
   public static String convertInfixToPRN(String token) {
 
     String trimmedToken = removeWhiteSpace(token);
-    Queue<String> result = new ArrayDeque<>();
+    Deque<String> result = new ArrayDeque<>();
     Stack<String> operands = new Stack<>();
-    boolean isNumber = false;
+    boolean isPrecedenceNumber = false;
     for (int i = 0; i < trimmedToken.length(); i++) {
       String symbol = getString(trimmedToken, i);
       switch (symbol) {
@@ -36,11 +36,11 @@ public class InfixToPrnConverter {
             result.add(operands.pop());
           }
           operands.push(symbol);
-          isNumber=false;
+          isPrecedenceNumber=false;
           break;
         case "(":
           operands.push(symbol);
-          isNumber=false;
+          isPrecedenceNumber=false;
           break;
         case ")":
           String operand = operands.pop();
@@ -48,14 +48,18 @@ public class InfixToPrnConverter {
             result.add(operand);
             operand = operands.pop();
           }
-          isNumber=false;
+          isPrecedenceNumber=false;
           break;
         default:
-          if(isNumber){
-            symbol+=result.remove();
+          if(isPrecedenceNumber){
+            StringBuilder moreThanTwoDigitSymbol = new StringBuilder();
+            moreThanTwoDigitSymbol.append(result.removeLast());
+            moreThanTwoDigitSymbol.append(symbol);
+            result.add(moreThanTwoDigitSymbol.toString());
+          }else {
+            result.add(symbol);
           }
-          result.add(symbol);
-          isNumber=true;
+          isPrecedenceNumber = true;
       }
     }
     addRemainingOperands(result, operands);
