@@ -1,6 +1,7 @@
 package com.aer.sample.infixnotationcalculator;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class InfixToPrnConverter {
   private InfixToPrnConverter() {
@@ -22,60 +23,91 @@ public class InfixToPrnConverter {
   public static String convertInfixToPRN(String token) {
 
     String trimmedToken = removeWhiteSpace(token);
-    Deque<String> result = new ArrayDeque<>();
-    Stack<String> operands = new Stack<>();
-    boolean isPrecedenceNumber = false;
-    for (int i = 0; i < trimmedToken.length(); i++) {
-      String symbol = getString(trimmedToken, i);
+    Queue<String> symbols = new ArrayDeque<>(Arrays.asList(trimmedToken.split("")));
+    return convertSymbols(symbols);
+  }
+
+  private static String convertSymbols(Queue<String> symbols) {
+    Queue<String> result = new ArrayDeque<>();
+    Stack<String> operators = new Stack<>();
+    processSymbols(symbols, operators, result);
+    addRemainingOperators(result, operators);
+    return result.toString().replaceAll("[\\[\\]\\s]", "");
+  }
+
+  private static void processSymbols(Queue<String> symbols, Stack<String> operands, Queue<String> result) {
+
+    while (!symbols.isEmpty()) {
+      String symbol = symbols.remove();
       switch (symbol) {
         case "+":
         case "-":
         case "/":
         case "*":
-          while (!operands.isEmpty() && precedence.get(operands.peek()) >= precedence.get(symbol)) {
-            result.add(operands.pop());
-          }
+          processOperand(symbol, operands, result);
           operands.push(symbol);
-          isPrecedenceNumber=false;
           break;
         case "(":
           operands.push(symbol);
-          isPrecedenceNumber=false;
           break;
         case ")":
-          String operand = operands.pop();
-          while (!operand.equals("(")) {
-            result.add(operand);
-            operand = operands.pop();
-          }
-          isPrecedenceNumber=false;
+          processClosingParentheses(operands, result);
           break;
         default:
-          if(isPrecedenceNumber){
-            StringBuilder moreThanTwoDigitSymbol = new StringBuilder();
-            moreThanTwoDigitSymbol.append(result.removeLast());
-            moreThanTwoDigitSymbol.append(symbol);
-            result.add(moreThanTwoDigitSymbol.toString());
-          }else {
-            result.add(symbol);
-          }
-          isPrecedenceNumber = true;
+          var operator = processOperator(symbol, symbols);
+          result.add(operator);
       }
     }
-    addRemainingOperands(result, operands);
-    return result.toString().replaceAll("[\\[\\]\\s]", "");
   }
 
-  private static String getString(String expression, int index) {
-    return String.valueOf(expression.charAt(index));
+  private static void processOperand(String operand, Stack<String> operands, Queue<String> result) {
+    if (!operands.isEmpty() && precedence.get(operands.peek()) >= precedence.get(operand)) {
+      result.add(operands.pop());
+      processOperand(operand, operands, result);
+    }
   }
 
+  private static String processOperator(String operator, Queue<String> symbols) {
+    StringBuilder multipleDigitOperator = new StringBuilder();
+    processOperator(operator, symbols, multipleDigitOperator::append);
+    return multipleDigitOperator.toString();
+  }
+
+  private static void processOperator(String operator, Queue<String> symbols, Consumer<String> addOperator) {
+    addOperator.accept(operator);
+    if (isNextNumber(symbols)) {
+      processOperator(symbols.remove(), symbols, addOperator);
+    }
+
+  }
+
+  private static boolean isNextNumber(Queue<String> symbols) {
+    return (!symbols.isEmpty() && isNumber(symbols.peek()));
+  }
+
+  private static boolean isNumber(String symbol) {
+    try {
+      Integer.valueOf(symbol);
+      return true;
+    } catch (NumberFormatException exception) {
+      System.out.println("The symbol is not a number");
+      return false;
+    }
+  }
+
+  private static void processClosingParentheses(Stack<String> operands, Queue<String> result) {
+    String operand = operands.pop();
+    if (!operands.isEmpty() && !operand.equals("(")) {
+      result.add(operand);
+      processClosingParentheses(operands, result);
+    }
+  }
 
   private static String removeWhiteSpace(String token) {
     return token.replaceAll("\\s", "");
   }
 
-  private static void addRemainingOperands(Queue<String> result, Stack<String> operands) {
+  private static void addRemainingOperators(Queue<String> result, Stack<String> operands) {
     while (!operands.isEmpty()) {
       result.add(operands.pop());
     }
