@@ -36,6 +36,13 @@ class InfixToPrnConverterTest {
   }
 
   @Test
+  void moreComplexExpressionTest() {
+    String result = InfixToPrnConverter.convertInfixToPRN("5+3*2+(5/2-(3+8/2))");
+    assertEquals("5,3,2,*,+,5,2,/,3,8,2,/,+,-,+", result);
+  }
+
+
+  @Test
   void complexExpressionWithDigitNumberTest() {
     String result = InfixToPrnConverter.convertInfixToPRN("52+3*21+(10/2-30)");
     assertEquals("52,3,21,*,+,10,2,/,30,-,+", result);
